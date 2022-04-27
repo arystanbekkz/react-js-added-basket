@@ -35,7 +35,7 @@ export default function BasketModal() {
 
     const onSubmit = (data) => {
         console.log(data);
-        reset();
+        handleCloseModal();
     };
 
     return (
@@ -124,7 +124,7 @@ export default function BasketModal() {
                                 {...register("comment", {
                                     required: false,
                                     pattern: {
-                                    value: /\S{10,}/,
+                                    value: /(?=^.{10,}$)_?[A-Za-z]([-_]?[A-Za-z0-9])+_?/,
                                     message: "Comment should contain at least 10 symbols."
                                     }
                                 })}
