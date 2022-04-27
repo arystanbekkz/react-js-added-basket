@@ -68,7 +68,7 @@ export function MoviesPage() {
             </div>
             <Grid container spacing={2}>
                 {movies?.map((movie) => (
-                    <Grid item xs={12 / 5}>
+                    <Grid item xs={12} sm={6} md={4} lg={3} xl={2}>
                         <MovieItem key={movie.id} movie={movie} />
                     </Grid>
                 ))}

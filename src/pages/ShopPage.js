@@ -18,10 +18,10 @@ export function ShopPage() {
     }, [dispatch])
 
     return (
-        <Container>
+        <Container style={{padding: "30px"}}>
             <Grid container spacing={2}>
                 {products.map((product) => (
-                    <Grid item xs={3} key={product.id}>
+                    <Grid item xs={12} sm={6} md={4} lg={3} xl={12 / 5} key={product.id}>
                         <ProductBlock product={product} onAddToBasket={() => handleAddToBasket(product)} />
                     </Grid>
                 ))}

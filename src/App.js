@@ -1,6 +1,7 @@
 import './App.css';
 import { Routes, Route } from "react-router-dom";
-import {Navbar} from "./components/Navbar";
+//import {Navbar} from "./components/Navbar";
+import Appbar from "./components/Appbar";
 import {MoviesPage} from "./pages/MoviesPage";
 import {MoviePage} from "./pages/MoviePage";
 import {RickAndMortyPage} from "./pages/RickAndMortyPage";
@@ -17,7 +18,7 @@ function App() {
     return (
         <Auth.Provider value={{ token, setToken }}>
             <div className="App">
-                <Navbar />
+                <Appbar />
 
                 <Routes>
                     <Route path="/movies" element={<MoviesPage />} />

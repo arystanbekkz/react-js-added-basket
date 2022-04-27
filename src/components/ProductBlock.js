@@ -1,8 +1,15 @@
 import {Button, styled} from "@mui/material";
+import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 
 const Box = styled('div')`
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
   padding: 16px 16px 12px 16px;
   box-sizing: border-box;
+  min-height: 470px;
+  height: 100%;
   border-radius: 8px;
   transition: .2s;
   &:hover {
@@ -10,7 +17,7 @@ const Box = styled('div')`
   }
 `
 const Image = styled('img')`
-  width: 240px;
+  max-width: 100%;
   height: 260px;
   object-fit: contain;
 `
@@ -29,10 +36,12 @@ const Price = styled('h3')`
 export function ProductBlock({ product, onAddToBasket }) {
     return (
         <Box>
-            <Image src={product.image} alt="" />
+            <Image src={product.image} alt={product.title} />
             <Title>{product.title}</Title>
             <Price>{product.price}$</Price>
-            <Button onClick={onAddToBasket}>Add to Basket</Button>
+            <Button onClick={onAddToBasket} variant="contained" startIcon={<AddShoppingCartIcon style={{fontSize: "25px"}}/>}>
+              Add to Basket
+            </Button>
         </Box>
     )
 }

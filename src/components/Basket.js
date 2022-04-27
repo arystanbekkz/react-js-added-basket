@@ -1,119 +1,194 @@
-import {styled} from "@mui/material";
+import {Button, styled} from "@mui/material";
 import {useState} from "react";
 import {useSelector, useDispatch} from "react-redux";
-import {useCallback} from "react";
-import {addToBasket, removeFromBasket} from "../store/actions/shopActions";
+import ClickAwayListener from '@mui/material/ClickAwayListener';
+import ShoppingBagIcon from '@mui/icons-material/ShoppingBag';
+import BasketItem from "./BasketItem";
+import { useCallback } from "react";
+import BasketModal from "./BasketModal";
+
+const Container = styled('div')`
+    position: relative;
+    font-family: Dodo, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+`
+const Background = styled('div')`
+    width: 100%;
+    height: 100%;
+    z-index: 500;
+    background: rgba(0, 0, 0, 0.64) none repeat scroll 0% 0%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    overflow: hidden;
+`
 
 const Wrapper = styled('div')`
   position: fixed;
   z-index: 1000;
   right: 20px;
-  top: 80px;
-  width: 100px;
-  height: 100px;
-  border-radius: 50px;
-  background-color: red;
+  bottom: 40px;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background-color: rgb(21, 101, 192);
+  box-shadow: rgba(6, 5, 50, 0.7) 0px 0px 30px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: .2s;
   ${({ expanded }) => (expanded && `
+    top: 0;
+    right: 0;
     cursor: auto;
-    width: 400px;
-    height: 600px;
-    background: white;
-    border: 1px solid red;
-    border-radius: 10px;
+    width: 100%;
+    max-width: 430px;
+    height: 100vh;
+    background: rgb(243, 243, 247) none repeat scroll 0% 0%;
+    border: none;
+    border-radius: 0;
     flex-direction: column;
-    align-items: flex-start;
     justify-content: flex-start;
-    padding: 16px;
     overflow-y: scroll;
   `)}
+    
 `
-const BasketIcon = styled('span')`
-  font-size: 40px;
+
+const BasketHeader = styled('h1')`
+    margin-top: 24px;
+    margin-bottom: 4px;
+    font-size: 24px;
+    line-height: 28px;
+    font-weight: 500;
 `
-const BasketItemWrapper = styled('div')`
+const BasketItemsCount = styled('div')`
     display: flex;
-    width: 100%;
-    height: 80px;
-    justify-content: space-between;
-    margin-bottom: 15px;
-    padding: 8px;
-    font-size: 12px;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    min-width: 30px;
+    height: 30px;
+    position: absolute;
+    top: -10px;
+    right: 0;
+    background-color: orangered;
+    border-radius: 15px;
+    font-size: 16px;
+    font-weight: 600;
+    padding: 10px;
 `
-const ItemImage = styled('img')`
-    min-width: 15%;
-    width: 15%;
-    height: 100%;
-    object-fit: contain;
-    margin-right: 20px;
-`
-const BasketItemCounter = styled('div')`
+const BasketFooter = styled('div')`
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    width: 100%;
+    padding: 24px;
+    margin-top: 20px;
+    box-shadow: rgba(6, 5, 50, 0.4) 0px -2px 10px;
+    background-color: white;
+    position: -webkit-sticky; /* Required for Safari */
+    position: sticky;
+    bottom: 0;
+`
+const CloseButton = styled('button')`
+    display: flex;
     align-items: center;
-    margin-left: 15px;
-`
-const ItemIncrement = styled('button')`
-    cursor: pointer;
-    padding: 0;
-    width: 15px;
-    height: 15px;
-    background-color: orange;
+    justify-content: center;
+    border: none;
+    background-color: rgb(21, 101, 192);
     color: white;
-    font-size: 12px;
-    font-weight: 700;
-    text-align: center;
-    line-height: 100%;
-    &:hover {
-        background-color: red;
-    }
+    transition: .2s;
+    position: absolute;
+    top: 20px;
+    right: 10px;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    cursor: pointer;
 `
-
-
-export function BasketItem({ product, basket }) {
-    const dispatch = useDispatch()
-    
-    const handleIncrement = useCallback((product) => {
-        dispatch(addToBasket(product.productDescr));
-    }, [dispatch])
-
-    const handleDecrement = useCallback((product) => {
-        dispatch(removeFromBasket(product.productDescr));
-    }, [dispatch])
-
-    return (
-        <BasketItemWrapper onClick={(event) => event.stopPropagation()}>
-            <ItemImage src={product.productDescr.image} alt={product.productDescr.title}/>
-            <span>{product.productDescr.title}</span>
-            <BasketItemCounter>
-                <ItemIncrement product={product} onClick={() => handleIncrement(product)}>+</ItemIncrement>
-                {basket.find(item => item.productDescr.id === product.productDescr.id).quantity}
-                <ItemIncrement product={product} onClick={() => handleDecrement(product)}>-</ItemIncrement>
-            </BasketItemCounter>
-        </BasketItemWrapper>
-    )
-}
 
 export function Basket() {
-    const [expanded, setExpanded] = useState(false)
+    const dispatch = useDispatch()
+    
+    const [expanded, setExpanded] = useState(false);
+    
     const basket = useSelector((state) => state.shop.basket)
 
+    const handleOpenModal = useCallback(() => {
+        dispatch({type: 'shop/openModal'})
+    }, [dispatch]);
+    
+    const handleCheckout = (event) => {
+        event.stopPropagation();
+        handleOpenModal();
+    }
+    
+    if (expanded) {
+        document.body.style.overflow = "hidden"
+    } else {
+        document.body.style.overflow = "auto"
+    }
+
+    let subtotal = basket.reduce((sum, current) => sum + (current.productDescr.price * current.quantity), 0);
+    let itemsQty = basket.reduce((sum, current) => sum + current.quantity, 0);
+
+    subtotal = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(subtotal);
+
     return (
-        <Wrapper onClick={() => setExpanded(!expanded)} expanded={expanded}>
-            <BasketIcon>🪣</BasketIcon>
-            { expanded && basket.map((product, index) => (
-                <BasketItem basket={basket} product={product} key={index} />
-            ))}
-            {expanded ? <div style={{borderTop: "red solid 1px", width: "100%"}}>
-                <h3>Total:   
-                    {basket.reduce((sum, current) => sum + (current.productDescr.price * current.quantity), 0).toFixed(2)}$
-                </h3>
-            </div>: ''}
-        </Wrapper>
+        <Container >
+
+            {expanded && 
+                <Background></Background>
+            }
+            
+                <Wrapper onClick={() => setExpanded(true)} expanded={expanded}>
+                    {expanded && 
+                        <CloseButton className="close-button" onClick={(e) => {e.stopPropagation(); setExpanded(false)}}>
+                            <div style={{width: "100%", height: "3px", backgroundColor: "white", transform: "rotate(45deg)", position: "absolute"}}></div>
+                            <div style={{width: "100%", height: "3px", backgroundColor: "white", transform: "rotate(-45deg)"}}></div>
+                        </CloseButton>
+                    }
+                    <div>
+                        {!expanded &&
+                            <ShoppingBagIcon style={{fontSize: "40px", color: "white"}}/>
+                        }
+                        
+                        {!expanded && itemsQty > 0 && 
+                            <BasketItemsCount>{itemsQty}</BasketItemsCount>
+                        }
+                    </div>
+                    {expanded && 
+                        <div style={{padding: "0 16px"}}>
+                            <BasketHeader>
+                                {itemsQty} items - Subtotal: {subtotal}
+                            </BasketHeader>
+                        </div>}
+                    { expanded && basket.map((product, index) => (
+                        <BasketItem basket={basket} product={product} key={index} />
+                    ))}
+                    
+                    { expanded && 
+                        <div style={{marginTop: "auto", width: "100%"}}>
+                            <BasketFooter>
+                                <div style={{display: "flex", justifyContent: "space-between"}}>
+                                    <h3>Subtotal ({itemsQty} items):</h3>
+                                    <h3>{subtotal}</h3>
+                                </div>
+                                <Button 
+                                    onClick={(event) => handleCheckout(event)}
+                                    variant="contained" 
+                                    color="primary"
+                                    disabled={itemsQty < 1} 
+                                    sx={{fontWeight: 600}}>
+                                        Proceed to checkout
+                                </Button>
+                            </BasketFooter>
+                        </div>}
+                </Wrapper>
+            
+            <BasketModal />
+        </Container>
     )
 }
+
+
